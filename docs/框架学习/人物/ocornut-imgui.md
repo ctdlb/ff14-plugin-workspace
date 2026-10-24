@@ -14,7 +14,9 @@
 2. **身份是 ID，不是变量**：控件靠「ID 栈 + 标签」算出的 hash 认人（`imgui.cpp:9426-9436`）；ID 撞了就是两个控件共用一个状态，而本机绑定不会提示。
 3. **成对性有三种，规则不一样**：`Push*/Pop*` 必须配对；`Begin/BeginChild` **无论返回什么都得 `End/EndChild`**（`imgui.h:442-446`、`:464-468`）；`BeginTable` 反过来，**只有返回 true 才 `EndTable`**（`imgui.h:918`）。
 
-还有一条本机绑定专属：**本机绑定比上游旧**，没有 `ImGuiChildFlags`、`SeparatorText`、`SetItemTooltip/BeginItemTooltip`、`ImGuiStyle.FontSizeBase`（`Dalamud.Bindings.ImGui` 源码 grep 0 命中，DLL 二进制字符串同样 0 命中），`BeginChild` 仍是老签名 `(string, Vector2, bool border, flags)`（`Generated/Functions/Functions.000.cs:1714`）。抄网上 1.90+ 的 C# 示例会 CS0117 / CS1501。确切版本号**未确认**。
+还有一条本机绑定专属：**本机绑定比上游旧**，没有 `ImGuiChildFlags`、`SeparatorText`、`SetItemTooltip/BeginItemTooltip`、`ImGuiStyle.FontSizeBase`（`Dalamud.Bindings.ImGui` 源码 grep 0 命中，DLL 二进制字符串同样 0 命中），`BeginChild` 仍是老签名 `(string, Vector2, bool border, flags)`（`Generated/Functions/Functions.000.cs:1714`）。抄网上 1.90+ 的 C# 示例会 CS0117 / CS1501。
+
+版本区间已收窄（2026-10-25 实测）：本机 `%APPDATA%\XIVLauncherCN\addon\Hooks\dev\cimgui.dll`（1,188,864 B，2026-10-21 12:42）里**有** `BeginTable`/`ImGuiTableFlags`、**没有** `SeparatorText`（上游 1.89.7 才加）、**没有** `ImGuiChildFlags`（1.90 才加）→ 本机落在 **1.89.0～1.89.6** 之间（`推测`，依据是这两个 API 的加入版本，不是从运行时读出的版本号）。对照：本机 clone 的上游头文件是 `1.93.1 WIP`（`imgui.h:32`）——绑定的源码比运行时新约 4 个版本，**读 `Dalamud\imgui\` 源码时要去运行时 DLL 里核对那个符号在不在**，不能只看源码。三个 1.90+ API 何时随 Dalamud 升级出现，仍**未确认**。
 
 ## ② 七个问题
 
@@ -195,7 +197,7 @@ ImGui.SetNextWindowPos(new Vector2(200, 200), ImGuiCond.Appearing, new Vector2(0
 | `FirstUseEver` | `:2048` | **没有持久化记录**时才设（窗口在 ini 里没有条目） | 默认窗口大小、默认位置 |
 | `Appearing` | `:2049` | 每次重新出现时设（隐藏后再显示） | 弹窗居中、重新摆位 |
 
-坑：`FirstUseEver` 依赖窗口状态持久化（ini）。Dalamud 下 `imgui.ini` 落在哪、每个插件窗口是否独立记忆——**未确认**。稳妥做法：要「用户拖过的尺寸」就自己存配置并用 `Once` 只设一次，或者干脆不设让 ImGui 自己记；不要用 `Always` 每帧覆盖用户拖动。
+坑：`FirstUseEver` 依赖窗口状态持久化（ini）。**已实测确认**（2026-10-25）：Dalamud 把 ini 固定成 `%APPDATA%\XIVLauncherCN\dalamudUI.ini`——`Dalamud/Interface/Internal/InterfaceManager.cs:699` `var iniFileInfo = new FileInfo(Path.Combine(Path.GetDirectoryName(startInfo.ConfigurationPath)!, "dalamudUI.ini"));`，`:724` `newBackend.IniPath = iniFileInfo.FullName;`；超过 1 MB 时自动改名 `dalamudUI-<时间戳>.ini` 再重建（`:706-711`）。本机该文件 554,813 B / 33,656 行（2026-10-25 01:22）。→ 窗口位置/大小/列宽**跨会话都记得**，`FirstUseEver` 只在「这个窗口第一次出现」时生效；反过来，**不要用 `Always` 每帧覆盖用户的拖动**，也不要在重启后该 `Always`。
 
 ### Q5 常见坑（症状 → 正确做法）
 
@@ -270,9 +272,12 @@ ImGui.PopStyleVar(2);                                                  // imgui.
 | --- | --- | --- |
 | 上游行号（`imgui.h` / `imgui.cpp` / `docs/FAQ.md` / `imgui_demo.cpp`） | 本机 clone 实读，HEAD `4be0b47e`，1.93.1 WIP | 源码实证（库会更新，用前照行号再确认） |
 | C# 绑定签名与行号 | `E:\FF14Dev\KnowledgeBase\Dalamud\imgui\Dalamud.Bindings.ImGui\` 源码实读 + 运行时 DLL 字符串核对 | 源码实证，**仅对本机这份绑定成立** |
-| 本机绑定缺 1.90+ API | 枚举/函数在绑定源码 grep 0 命中，DLL 二进制字符串同样 0 命中 | 实证；**具体版本号未确认**（不是 1.93） |
+| 本机绑定缺 1.90+ API | 枚举/函数在绑定源码 grep 0 命中，DLL 二进制字符串同样 0 命中 | 实证 |
+| 本机绑定落在 1.89.0～1.89.6 | `cimgui.dll` 有 `BeginTable`、无 `SeparatorText`（1.89.7 加）、无 `ImGuiChildFlags`（1.90 加） | **推测**（依据 API 加入版本，非运行时读版本号） |
 | Dalamud 会覆盖全局样式 | 从 `StyleModel` 的存在推断 | **推测** |
-| `imgui.ini` 在 Dalamud 下的持久化 / `FirstUseEver` 实际行为 | 未查 | **未确认** |
+| 窗口布局持久化在 `dalamudUI.ini` | `InterfaceManager.cs:699` + `:724`；本机 554,813 B / 33,656 行 | 源码实证 + 本机实测 |
 | 示例代码 | 逐条对照本机绑定签名，**未编译**（本次要求只读） | 未编译验证 |
 
-未查清：① 本机绑定对应的 ImGui 确切版本；② Dalamud 是否持久化窗口布局（影响 `FirstUseEver`/`Appearing`）；③ 那三个 1.90+ API 会不会在下次 Dalamud 升级后出现（影响写法能否简化）。
+未查清：① 那三个 1.90+ API 会不会在下次 Dalamud 升级后出现（影响写法能否简化）；② 每个插件窗口的 ini 段名怎么起（`Begin("名字")` 的名字即段名，重名会共用状态——按机制推断，未单独实测）；③ `Appearing` 与 Dalamud 隐藏窗口的交互（未实测）。
+
+> 2026-10-25 已解决：原来「绑定确切版本」「是否持久化布局」两项由离线核实补上（上方两处正文已改）；剩下三项要进游戏才验得出来。

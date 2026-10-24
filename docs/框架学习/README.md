@@ -93,6 +93,8 @@
 3. KTK 的 `TextNode` + `AddonController` 在 `ItemDetail` 上是否按预期工作（`OnUpdate` = `PostUpdate`）。
 4. 不引 OmenTools 的纯 KTK 插件是否会在 `ExpansionInterop` 那步拿到 0 地址（`KamiToolKit` 自己不调 `ExpansionInterop.Initialize`）。
 
+> 2026-10-25 补充：原来还有两项「未确认」，已离线查实，不再算待验证——① 本机 ImGui 绑定落在 **1.89.0～1.89.6**（`cimgui.dll` 有 `BeginTable`、无 `SeparatorText`/`ImGuiChildFlags`；上游 clone 是 1.93.1 WIP）；② 窗口布局持久化在 `%APPDATA%\XIVLauncherCN\dalamudUI.ini`（`Dalamud/Interface/Internal/InterfaceManager.cs:699`、`:724`）。细节见 [人物/ocornut-imgui.md](人物/ocornut-imgui.md)。
+
 ## 六、许可速查（抄代码前看一眼）
 
 - 可以抄、只需保留声明：**MIT**（KamiToolKit、OmenTools、ECommons、CkCommons）、**Apache-2.0**（OtterGui，注意 NOTICE）。
