@@ -2,7 +2,6 @@
 TextToTalkCN/
 DalamudPlugins/
 # 插件源码不进工作区仓库：本工作区只放规则、文档与探针（HoverProbe 除外）
-ThanksGen2/
 
 # 构建与临时文件
 bin/

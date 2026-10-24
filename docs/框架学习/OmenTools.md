@@ -54,7 +54,7 @@ public static DService Instance();
 
 **两个必须记住的后果**：
 
-1. **禁止在 `UninitAsync` 之后再初始化**：`IsDisposed` 一旦为真就永久挡住了（:37）。所以「禁用插件再启用」这种热重载，必须等上一次 `UninitAsync` 彻底跑完再 `InitAsync`（我们的 `ThanksGen2/OmenBootstrap.cs` 就是靠 `pendingUninit` + `Task.WhenAny(…, Task.Delay(5000))` 兜这个）。
+1. **禁止在 `UninitAsync` 之后再初始化**：`IsDisposed` 一旦为真就永久挡住了（:37）。所以「禁用插件再启用」这种热重载，必须等上一次 `UninitAsync` 彻底跑完再 `InitAsync`。**实测过的症状**（2026-10-25）：热重载时新实例直接初始化，抓到的服务容器正在被拆，抛 `NullReferenceException` 于 `Dalamud.Plugin.DalamudPluginInterface.GetService(Type)`（栈经 `OmenTools.Extensions.DalamudServiceExtension.Instance[TService]()` → `OmenTools.DService.InitAsync`）；控制台同时报 `"<插件名>" is leaking N hooks!`。**做法**：把上一次的 `UninitAsync()` 的 `Task` 存成静态字段，`InitAsync` 开头 `if (pendingUninit is { IsCompleted: false }) await Task.WhenAny(pendingUninit, Task.Delay(5000));`，再用 `DService.IsDisposed` 兜底跳过本次初始化。（原先这段代码在已删除的 `ThanksGen2` 里，结论留在这里。）
 2. **`UninitAsync` 内部大量走 `IFramework.Run`（下一帧调度）**，所以它是异步完成的，**不能在主线程阻塞等它**（会死锁）。同样地，游戏退出（`IsFrameworkUnloading`）时不要调它。
 
 ## 服务清单（`OmenService/Implementations/Managers/`）
