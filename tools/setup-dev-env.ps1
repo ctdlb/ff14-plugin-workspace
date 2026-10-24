@@ -13,7 +13,7 @@
 .PARAMETER Proxy
   github.com 用的 HTTP 代理，默认 http://127.0.0.1:7897。
 .PARAMETER KnowledgeBaseRoot
-  四个知识库仓库的父目录，默认 <Root>\KnowledgeBase。
+  知识库仓库的父目录，默认 <Root>\KnowledgeBase。
 .PARAMETER DevPluginsDir
   插件安装目录，默认自动探测 %APPDATA%\XIVLauncherCN…\dev\devPlugins。
 .PARAMETER SkipPluginInstall
@@ -335,7 +335,11 @@ if (-not $SkipKnowledge) {
             @{ Name = 'Dalamud'; Url = 'https://github.com/Dalamud-DailyRoutines/Dalamud.git' },
             @{ Name = 'FFXIVClientStructs'; Url = 'https://github.com/Dalamud-DailyRoutines/FFXIVClientStructs.git' },
             @{ Name = 'FFXIVNetworkOpcodes'; Url = 'https://github.com/Yarukon/FFXIVNetworkOpcodes.git' },
-            @{ Name = 'imgui'; Url = 'https://github.com/ocornut/imgui.git' }
+            @{ Name = 'imgui'; Url = 'https://github.com/ocornut/imgui.git' },
+            @{ Name = 'KamiToolKit'; Url = 'https://github.com/Dalamud-DailyRoutines/KamiToolKit.git' },
+            @{ Name = 'OmenTools'; Url = 'https://github.com/AtmoOmen/OmenTools.git' },
+            @{ Name = 'OmenTools.KamiToolKit'; Url = 'https://github.com/AtmoOmen/OmenTools.KamiToolKit.git' },
+            @{ Name = 'FFXIVClientStructs.Expansion'; Url = 'https://github.com/AtmoOmen/FFXIVClientStructs.Expansion.git' }
         )
         foreach ($r in $repos) {
             $dest = Join-Path $kbRoot $r.Name

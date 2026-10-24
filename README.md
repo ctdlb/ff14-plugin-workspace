@@ -15,7 +15,7 @@
 脚本做的事：
 
 - 装 .NET SDK、MinGit、EXDViewer；
-- 克隆四个源码知识库（Dalamud、FFXIVClientStructs、imgui、FFXIVNetworkOpcodes）；
+- 克隆八个源码知识库（Dalamud、FFXIVClientStructs、FFXIVClientStructs.Expansion、FFXIVNetworkOpcodes、imgui、KamiToolKit、OmenTools、OmenTools.KamiToolKit）；
 - 检测游戏目录、必要时拉起 EXDViewer 让你填一次路径；
 - 可选：把 GitHub 令牌存进凭据管理器（`-GitHubToken`）；
 - **不装任何插件**（作者自己的插件要加 `-IncludeMyPlugins`）；
