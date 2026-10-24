@@ -69,6 +69,23 @@
 | [CkCommons.md](CkCommons.md) | MIT，纯 ImGui 工具箱 |
 | [OmenTools.KamiToolKit.md](OmenTools.KamiToolKit.md) | MIT，KTK 的扩展库（贴边面板 + 控件图鉴） |
 
+### 人物档案（按作者读，2026-10-25 起）
+
+按「人」读，而不是按库读：同一个人维护的一堆库往往共享同一套做法与同一个坑。每条结论都带 `文件:行号`，可信度标注见各文件末节。
+
+| 作者 | 笔记 | 学什么 | 许可提醒 |
+| --- | --- | --- | --- |
+| AtmoOmen | [人物/AtmoOmen.md](人物/AtmoOmen.md) | DailyRoutines 的模块生命周期与卸载时序、国服 SDK 与官方的差异、改原生 UI 的四种手法 | `DailyRoutines.Common` / `ModulesPublic` 是 **AGPL**（读得、抄不得）；CN SDK 是 MIT |
+| MidoriKami | [人物/MidoriKami.md](人物/MidoriKami.md) | KTK 原版的接入顺序与「忘了调不报错」的坑、`AttachNode` 的真实用法、撑高能做到什么程度 | KTK 是 **MIT**；VanillaPlus / DailyDuty 未逐一核许可，抄前自己查 |
+| Yarukon | [人物/Yarukon.md](人物/Yarukon.md) | opcode 表怎么用、收发双 hook、共享纹理把外部画面搬进游戏、包结构字典 | opcode 仓库**无 LICENSE**（数字是事实可用，整文件不要抄）；Browsingway GPL、Kawari AGPL |
+| ocornut | [人物/ocornut-imgui.md](人物/ocornut-imgui.md) | ImGui 的 ID 机制、立即模式陷阱、表格/Child 布局、本机绑定比上游旧这件事 | 上游 **MIT** |
+
+这轮读出来的三条跨作者结论（比单个库的结论更重要）：
+
+1. **不用为了「国服」特意换 CN SDK**：与官方 `15.0.0` 只差 `Use_Dalamud_CN` 默认值、`DalamudLibPath` 的 Windows 分支拆成 `XIVLauncherCN\…` / `XIVLauncher\…` 两条、注释排版三处，包源仍是 nuget.org。真正的国服差异在 `<dev>` 目录那份 DLL 里（`人物/AtmoOmen.md`）。
+2. **KTK 替我们做掉了两个坑**：挂链后自动 `UpdateDrawNodeList()` + `UpdateCollisionNodeList(false)`；`Dispose` 里先判 `IsFrameworkUnloading`、再带双 Dispose 守卫。但它**只清已经从 addon 摘下来的孤儿节点**，还挂着的不归它管（`人物/MidoriKami.md`）。
+3. **原生 addon 没有「按内容自动撑高」的现成实现**：连 VanillaPlus 改原生窗也是「固定增量 + 手工搬滚动条/按钮/九宫格，再逐项还原」。再遇到撑高问题，不要以为有个库能一行解决（`人物/MidoriKami.md`）。
+
 ## 五、还没做的验证（下次动手前）
 
 1. `ItemDetail` 的 `addon->WindowNode` 是否非 null（为 null 则 KTK 的 `Resize` 静默无效）——HaselDebug 一眼可看。
