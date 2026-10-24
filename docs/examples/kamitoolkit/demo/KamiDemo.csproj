@@ -1,0 +1,20 @@
+<Project Sdk="Dalamud.NET.Sdk/15.0.0">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows7.0</TargetFramework>
+    <Platforms>x64</Platforms>
+    <Version>0.1.0.0</Version>
+    <Author>ctdlb</Author>
+    <Name>Kami 原生界面演示</Name>
+    <InternalName>KamiDemo</InternalName>
+    <Punchline>用 KamiToolKit 画的游戏原生界面演示</Punchline>
+    <Description>演示 KamiToolKit：原生标题栏、文字、按钮、勾选框，外观与游戏自带窗口一致。</Description>
+    <RepoUrl>https://github.com/ctdlb</RepoUrl>
+    <Tags>demo;ui</Tags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="KamiToolKit" Version="2.2.65" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,11 @@
+<Project Sdk="Dalamud.NET.Sdk/15.0.0">
+	<PropertyGroup>
+		<AssemblyName>HoverProbe</AssemblyName>
+		<Version>0.0.1.0</Version>
+		<Name>HoverProbe</Name>
+		<Author>ctdlb</Author>
+		<Description>只读探针：记录道具简介框在几个时间点的高度与提示行位置。</Description>
+		<Punchline>看看谁在改我们的框</Punchline>
+		<RepoUrl>https://example.invalid/HoverProbe</RepoUrl>
+	</PropertyGroup>
+</Project>

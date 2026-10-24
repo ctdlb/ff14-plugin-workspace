@@ -1,0 +1,27 @@
+# 插件仓库与构建产物（各自独立仓库 / 本地产物）
+TextToTalkCN/
+DalamudPlugins/
+# 插件源码不进工作区仓库：本工作区只放规则、文档与探针（HoverProbe 除外）
+ThanksGen2/
+
+# 构建与临时文件
+bin/
+obj/
+dist/
+*.log
+*.zip
+*.tmp
+
+# 本机临时目录
+.am-demo/
+.dsh-plugins/
+
+# 本机会话与凭据
+.dsh/
+.credentials*
+
+# 规则备份（脚本覆盖前自动生成）
+*.bak-*
+
+# 隔壁会话（dsh-plugins）的离线抄本，不属于本工作区
+插件清单.md
