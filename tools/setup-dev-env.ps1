@@ -355,6 +355,26 @@ if (-not $SkipKnowledge) {
             }
             catch { Add-Failure "$($r.Name) 克隆失败：$($_.Exception.Message)" }
         }
+
+        # 自检：把「目录里实际有的库」和上面的清单对一遍。
+        # 起因 2026-10-25：手工往 KnowledgeBase 里加了 4 个库（KamiToolKit、OmenTools、
+        # OmenTools.KamiToolKit、FFXIVClientStructs.Expansion），脚本清单没跟着改，
+        # 换机器只装到 4 个而没人发现。清单是第二份真相，必须每次运行自查一次。
+        $onDisk = @(Get-ChildItem -Path $kbRoot -Directory -ErrorAction SilentlyContinue |
+            Where-Object { Test-Path (Join-Path $_.FullName '.git') } |
+            Select-Object -ExpandProperty Name)
+        $listed = @($repos | ForEach-Object { $_.Name })
+        $extra = @($onDisk | Where-Object { $listed -notcontains $_ })
+        $missing = @($listed | Where-Object { $onDisk -notcontains $_ })
+        if ($extra.Count -gt 0) {
+            Warn "目录里有、清单里没有：$($extra -join '、') ← 请把条目补进本脚本的 `$repos"
+        }
+        if ($missing.Count -gt 0) {
+            Warn "清单里有、目录里没有：$($missing -join '、')"
+        }
+        if ($extra.Count -eq 0 -and $missing.Count -eq 0) {
+            Ok "清单与目录一致（$($listed.Count) 个库）"
+        }
     }
 }
 
